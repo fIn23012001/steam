@@ -20,7 +20,7 @@ jobs:
       run: cmake --build build --config Release
 
     - name: Upload DLL
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: steam_api64.dll
         path: build/Release/steam_api64.dll
