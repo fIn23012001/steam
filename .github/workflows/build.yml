@@ -1,26 +1,33 @@
-name: Build Steam API Stub DLL
+name: Build steam_api64.dll
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    tags:
+      - 'v*'  # билд запускается при пуше тега вида v1.0, v2.3 и т.п.
+
+permissions:
+  contents: write
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Configure with CMake
-      run: cmake -S . -B build
+    - name: Install Visual Studio Build Tools
+      uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Build
-      run: cmake --build build --config Release
+    - name: Build DLL
+      run: cl /LD steam_api64_stub.cpp /Fe:steam_api64.dll
 
-    - name: Upload DLL
-      uses: actions/upload-artifact@v2
+    - name: Zip output
+      run: powershell Compress-Archive steam_api64.dll steam_api64.zip
+
+    - name: Upload release
+      uses: softprops/action-gh-release@v1
       with:
-        name: steam_api64.dll
-        path: build/Release/steam_api64.dll
+        files: steam_api64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
